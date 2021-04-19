@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("source-map-support/register");
+const cdk = require("@aws-cdk/core");
+const emr_eks_app_stack_1 = require("../lib/emr-eks-app-stack");
+const app = new cdk.App();
+new emr_eks_app_stack_1.EmrEksAppStack(app, 'EmrEksAppStack');
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZW1yLWVrcy1hcHAuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJlbXItZWtzLWFwcC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFDQSx1Q0FBcUM7QUFDckMscUNBQXFDO0FBQ3JDLGdFQUEwRDtBQUUxRCxNQUFNLEdBQUcsR0FBRyxJQUFJLEdBQUcsQ0FBQyxHQUFHLEVBQUUsQ0FBQztBQUMxQixJQUFJLGtDQUFjLENBQUMsR0FBRyxFQUFFLGdCQUFnQixDQUFDLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyIjIS91c3IvYmluL2VudiBub2RlXG5pbXBvcnQgJ3NvdXJjZS1tYXAtc3VwcG9ydC9yZWdpc3Rlcic7XG5pbXBvcnQgKiBhcyBjZGsgZnJvbSAnQGF3cy1jZGsvY29yZSc7XG5pbXBvcnQgeyBFbXJFa3NBcHBTdGFjayB9IGZyb20gJy4uL2xpYi9lbXItZWtzLWFwcC1zdGFjayc7XG5cbmNvbnN0IGFwcCA9IG5ldyBjZGsuQXBwKCk7XG5uZXcgRW1yRWtzQXBwU3RhY2soYXBwLCAnRW1yRWtzQXBwU3RhY2snKTtcbiJdfQ==
