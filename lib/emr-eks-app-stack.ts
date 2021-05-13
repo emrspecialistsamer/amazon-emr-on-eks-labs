@@ -85,9 +85,9 @@ export class EmrEksAppStack extends cdk.Stack {
 
 //   const s3bucket = new s3.Bucket(this, 'emr-eks-workshop-'.concat(this.account));
      
-   const c9env = new cloud9.Ec2Environment(this, 'Cloud9Env', { vpc });
+//   const c9env = new cloud9.Ec2Environment(this, 'Cloud9Env', { vpc });
    	
-   new cdk.CfnOutput(this, 'URL', { value: c9env.ideUrl });
+//   new cdk.CfnOutput(this, 'URL', { value: c9env.ideUrl });
    new cdk.CfnOutput(this, 'EKSCluster', {
       value: eksCluster.clusterName,
       description: 'Eks cluster name',
