@@ -60,7 +60,7 @@ export class EmrEksAppStack extends cdk.Stack {
       vpc: vpc,
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
-      version: eks.KubernetesVersion.V1_18,
+      version: eks.KubernetesVersion.V1_19,
     });
 
     eksCluster.addNodegroupCapacity("ondemand-ng", {
