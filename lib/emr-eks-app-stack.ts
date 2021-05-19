@@ -60,7 +60,7 @@ export class EmrEksAppStack extends cdk.Stack {
       vpc: vpc,
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
-      version: eks.KubernetesVersion.V1_19,
+      version: eks.KubernetesVersion.V1_18,
     });
 
     eksCluster.addNodegroupCapacity("ondemand-ng", {
@@ -83,7 +83,11 @@ export class EmrEksAppStack extends cdk.Stack {
       capacityType: eks.CapacityType.SPOT,
     });
 
-//   const s3bucket = new s3.Bucket(this, 'emr-eks-workshop-'.concat(this.account));
+const s3bucket = new s3.Bucket(this, 'bucket', {
+      bucketName: 'emr-eks-workshop-'.concat(cdk.Stack.of(this).account),
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
      
 //   const c9env = new cloud9.Ec2Environment(this, 'Cloud9Env', { vpc });
    	
@@ -96,7 +100,7 @@ export class EmrEksAppStack extends cdk.Stack {
    new cdk.CfnOutput(this, 'EKSClusterAdminArn', { value: clusterAdmin.roleArn });
    new cdk.CfnOutput(this, 'EMRJobExecutionRoleArn', { value: emrEksRole.roleArn });
    //new cdk.CfnOutput(this, 'BootStrapCommand', { value: 'sh bootstrap_cdk.sh '.join() emrEksRole.roleArn });
-//   new cdk.CfnOutput(this,'S3Bucket', { value: s3bucket.bucketName });
+   new cdk.CfnOutput(this,'S3Bucket', { value: 's3://'.concat(s3bucket.bucketName) });
    new cdk.CfnOutput(this, 'BootStrapCommand', { value: 'sh bootstrap.sh '.concat(eksCluster.clusterName).concat(' ').concat(this.region).concat(' ').concat(clusterAdmin.roleArn)});
    new cdk.CfnOutput(this, 'GetToken', { value: 'aws eks get-token --cluster-name '.concat(eksCluster.clusterName).concat(' --region ').concat(this.region).concat(' --role-arn ').concat(clusterAdmin.roleArn).concat(" | jq -r '.status.token' ")}); 
     
