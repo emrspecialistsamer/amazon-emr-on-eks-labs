@@ -46,12 +46,12 @@ export class EmrEksAppStack extends cdk.Stack {
 
     emrEksRole.addToPolicy(new PolicyStatement({
       resources: ['*'],
-      actions: ['s3:PutObject','s3:GetObject','s3:ListBucket'],
+      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject',s3:ListBucket','glue:GetDatabase','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartitions','glue:DeleteTable','glue:ListSchemas','glue:UpdateTable'],
     })); 
 
     emrEksRole.addToPolicy(new PolicyStatement({
       resources: ['arn:aws:logs:*:*:*'],
-      actions: ['logs:PutLogEvents', 'logs:CreateLogStream', 'logs:DescribeLogGroups', 'logs:DescribeLogStreams'],
+      actions: ['logs:PutLogEvents', 'logs:CreateLogStream', 'logs:DescribeLogGroups', 'logs:DescribeLogStreams','logs:CreateLogGroup'],
     })); 
 
     const vpc = new ec2.Vpc(this, "eks-vpc");
