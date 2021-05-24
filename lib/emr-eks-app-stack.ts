@@ -46,7 +46,7 @@ export class EmrEksAppStack extends cdk.Stack {
 
     emrEksRole.addToPolicy(new PolicyStatement({
       resources: ['*'],
-      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject',s3:ListBucket','glue:GetDatabase','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartition',glue:GetPartitions','glue:DeletePartition','glue:BatchCreatePartition',glue:DeleteTable','glue:ListSchemas','glue:UpdateTable'],
+      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject',s3:ListBucket','glue:GetDatabase','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartition','glue:GetPartitions','glue:DeletePartition','glue:BatchCreatePartition','glue:DeleteTable','glue:ListSchemas','glue:UpdateTable'],
     })); 
 
     emrEksRole.addToPolicy(new PolicyStatement({
