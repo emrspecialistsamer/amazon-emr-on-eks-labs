@@ -5,7 +5,6 @@ import { CfnJson } from "@aws-cdk/core";
 import * as cloud9 from '@aws-cdk/aws-cloud9';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as fs from 'fs';
-import * as yaml from 'js-yaml';
 
 //import {readYamlFromDir} from '../utils/read-file';
 
