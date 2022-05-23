@@ -1,6 +1,8 @@
 import * as cdk from "@aws-cdk/core";
 import * as eks from "@aws-cdk/aws-eks";
 import * as ec2 from "@aws-cdk/aws-ec2";
+import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
+import * as rds from '@aws-cdk/aws-rds';
 import { CfnJson } from "@aws-cdk/core";
 import * as cloud9 from '@aws-cdk/aws-cloud9';
 import * as s3 from '@aws-cdk/aws-s3';
@@ -52,7 +54,42 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const vpc = new ec2.Vpc(this, "eks-vpc");
     cdk.Tags.of(vpc).add('for-use-with-amazon-emr-managed-policies','true');
-
+    
+    const databaseCredentialsSecret = new secretsmanager.Secret(this, 'DBCredentials', {
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          username: 'postgres',
+        }),
+        excludePunctuation: true,
+        includeSpace: false,
+        generateStringKey: 'password'
+      }
+    });  
+    
+    const databaseSecurityGroup = new ec2.SecurityGroup(this, 'DBSecurityGroup', {
+      vpc,
+      description: 'security group for rds metastore',
+    });
+    
+    databaseSecurityGroup.addIngressRule(
+      ec2.Peer.ipv4(vpc.vpcCidrBlock),
+      ec2.Port.tcp(3306),
+      'allow MySQL access from vpc',
+    );
+    
+    const cluster = new rds.DatabaseCluster(this, 'Database', {
+      engine: rds.DatabaseClusterEngine.auroraMysql({ version: rds.AuroraMysqlEngineVersion.VER_2_08_1 }),
+      credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
+      instanceProps: {
+        // optional , defaults to t3.medium
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PRIVATE,
+        },
+        vpc,
+      },
+    });
+    
     const eksCluster = new eks.Cluster(this, "Cluster", {
       vpc: vpc,
       mastersRole: clusterAdmin,
