@@ -58,7 +58,7 @@ export class EmrEksAppStack extends cdk.Stack {
     const databaseCredentialsSecret = new secretsmanager.Secret(this, 'DBCredentials', {
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
-          username: 'postgres',
+          username: 'hivemsadmin',
         }),
         excludePunctuation: true,
         includeSpace: false,
@@ -80,6 +80,7 @@ export class EmrEksAppStack extends cdk.Stack {
     const cluster = new rds.DatabaseCluster(this, 'Database', {
       engine: rds.DatabaseClusterEngine.auroraMysql({ version: rds.AuroraMysqlEngineVersion.VER_2_08_1 }),
       credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
+      defaultDatabaseName: "hivemetastore",
       instanceProps: {
         // optional , defaults to t3.medium
         instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
@@ -87,6 +88,7 @@ export class EmrEksAppStack extends cdk.Stack {
           subnetType: ec2.SubnetType.PRIVATE,
         },
         vpc,
+        securityGroups: [databaseSecurityGroup]
       },
     });
     
