@@ -1,7 +1,15 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
 import { EmrEksAppStack } from '../lib/emr-eks-app-stack';
 
 const app = new cdk.App();
-new EmrEksAppStack(app, 'EmrEksAppStack');
+
+const account = process.env.CDK_DEFAULT_ACCOUNT;
+const region = process.env.CDK_DEFAULT_REGION;
+
+
+
+new EmrEksAppStack(app, 'EmrEksAppStack', {
+    env: { account, region }
+});

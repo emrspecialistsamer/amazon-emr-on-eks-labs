@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import * as eks from '@aws-cdk/aws-eks';
-import {KubernetesManifest} from "@aws-cdk/aws-eks/lib/k8s-manifest";
+import * as eks from 'aws-cdk-lib/aws-eks';
+import { KubernetesManifest } from 'aws-cdk-lib/aws-eks';
 
 
 export function readYamlFromDir(dir: string, cluster: eks.ICluster) {
@@ -11,7 +11,7 @@ export function readYamlFromDir(dir: string, cluster: eks.ICluster) {
       let data = fs.readFileSync(dir + file, 'utf8');
       if (data != undefined) {
         let i = 0;
-        yaml.loadAll(data).forEach((item) => {
+        yaml.loadAll(data).forEach((item: any) => {
           const resource = cluster.addManifest(file.substr(0, file.length - 5) + i, item);
           // @ts-ignore
           if (previousResource != undefined) {
@@ -19,8 +19,8 @@ export function readYamlFromDir(dir: string, cluster: eks.ICluster) {
           }
           previousResource = resource;
           i++;
-        })
-      }
+        });
+      } 
     }
   });
 }
