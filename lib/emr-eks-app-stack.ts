@@ -76,7 +76,7 @@ export class EmrEksAppStack extends cdk.Stack {
     );
     
     const cluster = new DatabaseCluster(this, 'Database', {
-      engine: DatabaseClusterEngine.auroraMysql({ version: AuroraMysqlEngineVersion.VER_2_08_1 }),
+      engine: DatabaseClusterEngine.auroraMysql({ version: AuroraMysqlEngineVersion.VER_2_11_0 }),
       credentials: Credentials.fromSecret(databaseCredentialsSecret),
       defaultDatabaseName: "hivemetastore",
       instanceProps: {
