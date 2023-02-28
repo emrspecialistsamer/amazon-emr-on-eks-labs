@@ -99,20 +99,18 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
       instanceTypes: [
-        new InstanceType('r5.xlarge'),
-        new InstanceType('r5.2xlarge'),
-        new InstanceType('r5.4xlarge')],
-      minSize: 3,
+        new InstanceType('t3.large'),
+        new InstanceType('t3.xlarge')],
+      minSize: 2,
       maxSize: 12,
       capacityType: CapacityType.ON_DEMAND,
     });
 
     const spotNG = eksCluster.addNodegroupCapacity("spot-ng", {
       instanceTypes: [
-        new InstanceType('m5.xlarge'),
-        new InstanceType('m5.2xlarge'),
-        new InstanceType('m5.4xlarge')],
-      minSize: 3,
+        new InstanceType('t3.large'),
+        new InstanceType('t3.xlarge')],
+      minSize: 2,
       maxSize: 12,
       capacityType: CapacityType.SPOT,
     });
