@@ -42,7 +42,7 @@ export class EmrEksAppStack extends cdk.Stack {
 
     emrEksRole.addToPolicy(new PolicyStatement({
       resources: ['*'],
-      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject','s3:ListBucket','glue:GetDatabase','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartition','glue:GetPartitions','glue:DeletePartition','glue:BatchCreatePartition','glue:DeleteTable','glue:ListSchemas','glue:UpdateTable','ec2:CreateSecurityGroup','ec2:DeleteSecurityGroup','ec2:AuthorizeSecurityGroupEgress','ec2:AuthorizeSecurityGroupIngress','ec2:RevokeSecurityGroupEgress','ec2:RevokeSecurityGroupIngress','ec2:DeleteSecurityGroup','acm:DescribeCertificate'],
+      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject','s3:ListBucket', 'glue:AlterPartitions','glue:GetUserDefinedFunctions','glue:GetDatabase','glue:GetDatabases','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartition','glue:GetPartitions','glue:DeletePartition','glue:BatchCreatePartition','glue:DeleteTable','glue:ListSchemas','glue:UpdateTable','ec2:CreateSecurityGroup','ec2:DeleteSecurityGroup','ec2:AuthorizeSecurityGroupEgress','ec2:AuthorizeSecurityGroupIngress','ec2:RevokeSecurityGroupEgress','ec2:RevokeSecurityGroupIngress','ec2:DeleteSecurityGroup','acm:DescribeCertificate'],
     })); 
 
     emrEksRole.addToPolicy(new PolicyStatement({
