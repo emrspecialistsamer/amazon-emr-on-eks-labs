@@ -76,7 +76,7 @@ export class EmrEksAppStack extends cdk.Stack {
     );
     
     const cluster = new DatabaseCluster(this, 'Database', {
-      engine: DatabaseClusterEngine.auroraMysql({ version: AuroraMysqlEngineVersion.VER_2_10_0 }),
+      engine: DatabaseClusterEngine.auroraMysql({ version: AuroraMysqlEngineVersion.VER_2_11_1 }),
       credentials: Credentials.fromSecret(databaseCredentialsSecret),
       defaultDatabaseName: "hivemetastore",
       instanceProps: {
@@ -99,8 +99,8 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
       instanceTypes: [
-        new InstanceType('t3.large'),
-        new InstanceType('t3.xlarge')],
+        new InstanceType('m5.xlarge'),
+        new InstanceType('m5.2xlarge')],
       minSize: 2,
       maxSize: 12,
       capacityType: CapacityType.ON_DEMAND,
@@ -108,8 +108,8 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const spotNG = eksCluster.addNodegroupCapacity("spot-ng", {
       instanceTypes: [
-        new InstanceType('t3.large'),
-        new InstanceType('t3.xlarge')],
+        new InstanceType('m5.xlarge'),
+        new InstanceType('m5.2xlarge')],
       minSize: 2,
       maxSize: 12,
       capacityType: CapacityType.SPOT,
