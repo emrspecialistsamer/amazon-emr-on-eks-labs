@@ -52,6 +52,7 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const vpc = new Vpc(this, "eks-vpc");
     cdk.Tags.of(vpc).add('for-use-with-amazon-emr-managed-policies','true');
+    cdk.Tags.of(vpc).add('karpenter.sh/discovery','emr-eks-workshop');    
     
     const databaseCredentialsSecret = new Secret(this, 'DBCredentials', {
       generateSecretString: {
@@ -92,6 +93,7 @@ export class EmrEksAppStack extends cdk.Stack {
     
     const eksCluster = new Cluster(this, "Cluster", {
       vpc: vpc,
+      clusterName: 'emr-eks-workshop',
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
       version: KubernetesVersion.V1_22,
