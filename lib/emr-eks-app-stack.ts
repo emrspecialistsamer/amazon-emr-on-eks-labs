@@ -7,8 +7,9 @@ import { CfnInstanceProfile, ManagedPolicy, Policy, PolicyDocument, PolicyStatem
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { InstanceClass, InstanceSize, InstanceType, Peer, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { AuroraMysqlEngineVersion, Credentials, DatabaseCluster, DatabaseClusterEngine } from 'aws-cdk-lib/aws-rds';
-import { CapacityType, Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { CapacityType, CfnAddon, Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
+import * as IamPolicyEbsCsiDriver from'./../k8s/iam-policy-ebs-csi-driver.json';
 
 
 export class EmrEksAppStack extends cdk.Stack {
@@ -94,7 +95,7 @@ export class EmrEksAppStack extends cdk.Stack {
       vpc: vpc,
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
-      version: KubernetesVersion.V1_22,
+      version: KubernetesVersion.V1_27,
     });
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
@@ -125,6 +126,34 @@ export class EmrEksAppStack extends cdk.Stack {
      
    // Add EKS Fargate profile for EMR workloads
     eksCluster.addFargateProfile('fargate',{selectors:[{namespace:'eks-fargate'}]});
+
+  //Add EBS CSI DRIVER Service account
+
+  const ebsCsiDriverIrsa = eksCluster.addServiceAccount ('ebsCSIDriverRoleSA', {
+    name: 'ebs-csi-controller-sa',
+    namespace: 'kube-system',
+  });
+
+  const ebsCsiDriverPolicyDocument = PolicyDocument.fromJson(IamPolicyEbsCsiDriver);
+
+  const ebsCsiDriverPolicy = new Policy(
+    scope,
+    'IamPolicyEbsCsiDriverIAMPolicy',
+    { document: ebsCsiDriverPolicyDocument },
+  );
+
+  ebsCsiDriverPolicy.attachToRole (ebsCsiDriverIrsa.role);
+
+  const ebsCSIDriver = new CfnAddon(scope, 'ebsCsiDriver', {
+    addonName: 'aws-ebs-csi-driver',
+    clusterName: eksCluster.clusterName,
+    serviceAccountRoleArn: ebsCsiDriverIrsa.role.roleArn,
+    addonVersion: 'v1.20.0-eksbuild.1',
+    resolveConflicts: "OVERWRITE"
+  });
+
+  ebsCSIDriver.node.addDependency(ebsCsiDriverIrsa);
+
 
   /** Steps for EMR Studio */
     
