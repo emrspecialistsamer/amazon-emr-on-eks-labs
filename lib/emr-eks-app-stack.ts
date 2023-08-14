@@ -96,7 +96,7 @@ export class EmrEksAppStack extends cdk.Stack {
       clusterName: 'emr-eks-workshop',
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
-      version: KubernetesVersion.V1_22,
+      version: KubernetesVersion.V1_23,
     });
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
