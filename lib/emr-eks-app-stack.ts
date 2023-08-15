@@ -43,7 +43,7 @@ export class EmrEksAppStack extends cdk.Stack {
 
     emrEksRole.addToPolicy(new PolicyStatement({
       resources: ['*'],
-      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject','s3:ListBucket','glue:GetDatabase','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartition','glue:GetPartitions','glue:DeletePartition','glue:BatchCreatePartition','glue:DeleteTable','glue:ListSchemas','glue:UpdateTable','ec2:CreateSecurityGroup','ec2:DeleteSecurityGroup','ec2:AuthorizeSecurityGroupEgress','ec2:AuthorizeSecurityGroupIngress','ec2:RevokeSecurityGroupEgress','ec2:RevokeSecurityGroupIngress','ec2:DeleteSecurityGroup','acm:DescribeCertificate'],
+      actions: ['s3:PutObject','s3:GetObject','s3:DeleteObject','s3:ListBucket', 'glue:AlterPartitions','glue:GetUserDefinedFunctions','glue:GetDatabase','glue:GetDatabases','glue:CreateDatabase','glue:CreateTable','glue:GetTable','glue:GetPartition','glue:GetPartitions','glue:DeletePartition','glue:BatchCreatePartition','glue:DeleteTable','glue:ListSchemas','glue:UpdateTable','ec2:CreateSecurityGroup','ec2:DeleteSecurityGroup','ec2:AuthorizeSecurityGroupEgress','ec2:AuthorizeSecurityGroupIngress','ec2:RevokeSecurityGroupEgress','ec2:RevokeSecurityGroupIngress','ec2:DeleteSecurityGroup','acm:DescribeCertificate'],
     })); 
 
     emrEksRole.addToPolicy(new PolicyStatement({
@@ -53,6 +53,7 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const vpc = new Vpc(this, "eks-vpc");
     cdk.Tags.of(vpc).add('for-use-with-amazon-emr-managed-policies','true');
+    cdk.Tags.of(vpc).add('karpenter.sh/discovery','emr-eks-workshop');    
     
     const databaseCredentialsSecret = new Secret(this, 'DBCredentials', {
       generateSecretString: {
@@ -77,7 +78,7 @@ export class EmrEksAppStack extends cdk.Stack {
     );
     
     const cluster = new DatabaseCluster(this, 'Database', {
-      engine: DatabaseClusterEngine.auroraMysql({ version: AuroraMysqlEngineVersion.VER_2_08_1 }),
+      engine: DatabaseClusterEngine.auroraMysql({ version: AuroraMysqlEngineVersion.VER_2_11_1 }),
       credentials: Credentials.fromSecret(databaseCredentialsSecret),
       defaultDatabaseName: "hivemetastore",
       instanceProps: {
@@ -93,6 +94,7 @@ export class EmrEksAppStack extends cdk.Stack {
     
     const eksCluster = new Cluster(this, "Cluster", {
       vpc: vpc,
+      clusterName: 'emr-eks-workshop',
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
       version: KubernetesVersion.V1_27,
@@ -100,10 +102,9 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
       instanceTypes: [
-        new InstanceType('r5.xlarge'),
-        new InstanceType('r5.2xlarge'),
-        new InstanceType('r5.4xlarge')],
-      minSize: 3,
+        new InstanceType('m5.xlarge'),
+        new InstanceType('m5.2xlarge')],
+      minSize: 2,
       maxSize: 12,
       capacityType: CapacityType.ON_DEMAND,
     });
@@ -111,9 +112,8 @@ export class EmrEksAppStack extends cdk.Stack {
     const spotNG = eksCluster.addNodegroupCapacity("spot-ng", {
       instanceTypes: [
         new InstanceType('m5.xlarge'),
-        new InstanceType('m5.2xlarge'),
-        new InstanceType('m5.4xlarge')],
-      minSize: 3,
+        new InstanceType('m5.2xlarge')],
+      minSize: 2,
       maxSize: 12,
       capacityType: CapacityType.SPOT,
     });
