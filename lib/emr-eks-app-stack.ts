@@ -137,14 +137,14 @@ export class EmrEksAppStack extends cdk.Stack {
   const ebsCsiDriverPolicyDocument = PolicyDocument.fromJson(IamPolicyEbsCsiDriver);
 
   const ebsCsiDriverPolicy = new Policy(
-    scope,
+    this,
     'IamPolicyEbsCsiDriverIAMPolicy',
     { document: ebsCsiDriverPolicyDocument },
   );
 
   ebsCsiDriverPolicy.attachToRole (ebsCsiDriverIrsa.role);
 
-  const ebsCSIDriver = new CfnAddon(scope, 'ebsCsiDriver', {
+  const ebsCSIDriver = new CfnAddon(this, 'ebsCsiDriver', {
     addonName: 'aws-ebs-csi-driver',
     clusterName: eksCluster.clusterName,
     serviceAccountRoleArn: ebsCsiDriverIrsa.role.roleArn,
