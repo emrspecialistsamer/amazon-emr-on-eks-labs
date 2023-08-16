@@ -10,6 +10,7 @@ import { AuroraMysqlEngineVersion, Credentials, DatabaseCluster, DatabaseCluster
 import { CapacityType, CfnAddon, Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import * as IamPolicyEbsCsiDriver from'./../k8s/iam-policy-ebs-csi-driver.json';
+import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
 
 
 export class EmrEksAppStack extends cdk.Stack {
@@ -20,6 +21,8 @@ export class EmrEksAppStack extends cdk.Stack {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
    
     });
+
+    const kubectl = new KubectlV27Layer(this, 'KubectlLayer');
 
     clusterAdmin.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
     clusterAdmin.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
@@ -98,6 +101,7 @@ export class EmrEksAppStack extends cdk.Stack {
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
       version: KubernetesVersion.V1_27,
+      kubectlLayer: kubectl,
     });
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
@@ -137,14 +141,14 @@ export class EmrEksAppStack extends cdk.Stack {
   const ebsCsiDriverPolicyDocument = PolicyDocument.fromJson(IamPolicyEbsCsiDriver);
 
   const ebsCsiDriverPolicy = new Policy(
-    scope,
+    this,
     'IamPolicyEbsCsiDriverIAMPolicy',
     { document: ebsCsiDriverPolicyDocument },
   );
 
   ebsCsiDriverPolicy.attachToRole (ebsCsiDriverIrsa.role);
 
-  const ebsCSIDriver = new CfnAddon(scope, 'ebsCsiDriver', {
+  const ebsCSIDriver = new CfnAddon(this, 'ebsCsiDriver', {
     addonName: 'aws-ebs-csi-driver',
     clusterName: eksCluster.clusterName,
     serviceAccountRoleArn: ebsCsiDriverIrsa.role.roleArn,
@@ -153,7 +157,6 @@ export class EmrEksAppStack extends cdk.Stack {
   });
 
   ebsCSIDriver.node.addDependency(ebsCsiDriverIrsa);
-
 
   /** Steps for EMR Studio */
     
