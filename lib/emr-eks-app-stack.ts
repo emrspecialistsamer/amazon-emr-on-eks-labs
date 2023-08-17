@@ -10,7 +10,7 @@ import { AuroraMysqlEngineVersion, Credentials, DatabaseCluster, DatabaseCluster
 import { CapacityType, CfnAddon, Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import * as IamPolicyEbsCsiDriver from'./../k8s/iam-policy-ebs-csi-driver.json';
-import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
+import { KubectlV26Layer } from '@aws-cdk/lambda-layer-kubectl-v26';
 
 
 export class EmrEksAppStack extends cdk.Stack {
@@ -22,7 +22,7 @@ export class EmrEksAppStack extends cdk.Stack {
    
     });
 
-    const kubectl = new KubectlV27Layer(this, 'KubectlLayer');
+    const kubectl = new KubectlV26Layer(this, 'KubectlLayer');
 
     clusterAdmin.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
     clusterAdmin.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
@@ -100,9 +100,13 @@ export class EmrEksAppStack extends cdk.Stack {
       clusterName: 'emr-eks-workshop',
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
-      version: KubernetesVersion.V1_27,
+      version: KubernetesVersion.V1_26,
       kubectlLayer: kubectl,
     });
+
+    //let eksAuth = new AwsAuth(this, 'AwsAuth', {cluster: eksCluster});
+
+    //eksAuth.addMastersRole(Role.fromRoleArn(this, 'admin', 'ROLE-ARN'));
 
     const ondemandNG = eksCluster.addNodegroupCapacity("ondemand-ng", {
       instanceTypes: [
