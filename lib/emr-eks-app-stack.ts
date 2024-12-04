@@ -7,10 +7,10 @@ import { CfnInstanceProfile, ManagedPolicy, Policy, PolicyDocument, PolicyStatem
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { InstanceClass, InstanceSize, InstanceType, Peer, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { AuroraMysqlEngineVersion, Credentials, DatabaseCluster, DatabaseClusterEngine } from 'aws-cdk-lib/aws-rds';
-import { CapacityType, CfnAddon, Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { CapacityType, CfnAddon, Cluster, EndpointAccess, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import * as IamPolicyEbsCsiDriver from'./../k8s/iam-policy-ebs-csi-driver.json';
-import { KubectlV26Layer } from '@aws-cdk/lambda-layer-kubectl-v26';
+import { KubectlV29Layer } from '@aws-cdk/lambda-layer-kubectl-v29';
 
 
 export class EmrEksAppStack extends cdk.Stack {
@@ -19,10 +19,9 @@ export class EmrEksAppStack extends cdk.Stack {
 
     const clusterAdmin = new Role(this, 'emr-eks-adminRole', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-   
     });
 
-    const kubectl = new KubectlV26Layer(this, 'KubectlLayer');
+    const kubectl = new KubectlV29Layer(this, 'KubectlLayer');
 
     clusterAdmin.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
     clusterAdmin.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
@@ -100,8 +99,9 @@ export class EmrEksAppStack extends cdk.Stack {
       clusterName: 'emr-eks-workshop',
       mastersRole: clusterAdmin,
       defaultCapacity: 0, // we want to manage capacity ourselves
-      version: KubernetesVersion.V1_26,
+      version: KubernetesVersion.V1_29,
       kubectlLayer: kubectl,
+      endpointAccess: EndpointAccess.PUBLIC_AND_PRIVATE,
     });
 
     //let eksAuth = new AwsAuth(this, 'AwsAuth', {cluster: eksCluster});
@@ -130,6 +130,7 @@ export class EmrEksAppStack extends cdk.Stack {
       bucketName: 'emr-eks-workshop-'.concat(cdk.Stack.of(this).account),
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      enforceSSL: true,
     });
      
    // Add EKS Fargate profile for EMR workloads
@@ -156,7 +157,7 @@ export class EmrEksAppStack extends cdk.Stack {
     addonName: 'aws-ebs-csi-driver',
     clusterName: eksCluster.clusterName,
     serviceAccountRoleArn: ebsCsiDriverIrsa.role.roleArn,
-    addonVersion: 'v1.20.0-eksbuild.1',
+    addonVersion: 'v1.30.0-eksbuild.1',
     resolveConflicts: "OVERWRITE"
   });
 
