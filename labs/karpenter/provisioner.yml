@@ -1,0 +1,82 @@
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  # AMI family for EKS optimized AMIs
+  amiSelectorTerms:
+    - alias: "al2023@v20250904"
+  
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "emr-eks-workshop"
+  
+  # Security group discovery using tags  
+  securityGroupSelectorTerms:
+    - tags:
+        kubernetes.io/cluster/emr-eks-workshop : "owned"
+  
+  # Instance profile for worker nodes
+  role: "KarpenterNodeRole-emr-eks-workshop"
+    
+  # Block device mappings
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        deleteOnTermination: true
+
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  # Template for node properties
+  template:
+    metadata:
+      labels:
+        nodePool: default
+    spec:
+      # Node class reference
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      
+      # Node requirements
+      requirements:
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["on-demand", "spot"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.k8s.aws/instance-family"
+          operator: In
+          values: ["c5", "c5a", "c5d", "c5ad", "m5", "c6a"]
+        - key: "karpenter.k8s.aws/instance-size"
+          operator: In
+          values: ["2xlarge", "4xlarge", "8xlarge", "9xlarge"]
+        - key: "topology.kubernetes.io/zone"
+          operator: In
+          values: ["us-east-1a"]
+      
+      # Taints can be added here if needed
+      # taints:
+      #   - key: example.com/special-taint
+      #     value: "true"
+      #     effect: NoSchedule
+  
+  # Limits for the node pool
+  limits:
+    cpu: "2000"
+  
+  # Disruption settings
+  disruption:
+    # Consolidation policy
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    # Time to wait before terminating empty nodes
+    consolidateAfter: 60s

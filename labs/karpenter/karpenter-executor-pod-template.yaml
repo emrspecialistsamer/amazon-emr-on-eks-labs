@@ -1,0 +1,23 @@
+# // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# // SPDX-License-Identifier: MIT-0
+apiVersion: v1
+kind: Pod
+spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: spot
+  containers:
+  - name: spark-kubernetes-executor
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+  initContainers:  
+  - name: volume-permission
+    image: public.ecr.aws/y4g4v0z7/busybox
+    command: ['sh', '-c', 'mkdir /data1; chown -R 999:1000 /data*'] # grant volume access to hadoop user  
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+  volumes:
+    - name: spark-local-dir-1
+      hostPath:
+        path: /local1 

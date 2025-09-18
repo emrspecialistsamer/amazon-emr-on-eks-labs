@@ -1,0 +1,30 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: python-example
+spec:
+  image: 744527726443.dkr.ecr.us-east-1.amazonaws.com/flink-1.18.0-uber-jar:0.1
+  imagePullPolicy: Always
+  flinkVersion: v1_20
+  executionRoleArn: arn:aws:iam::744527726443:role/emr-flink-lab-role
+  emrReleaseLabel: "emr-7.9.0-flink-latest"
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: "1"
+  jobManager:
+    storageDir: s3://emr-eks-workshop-744527726443/jobmanager/
+    resource:
+      memory: "4096m"
+      cpu: 2
+  taskManager:
+    resource:
+      memory: "4096m"
+      cpu: 2
+  job:
+    jarURI: s3://emr-eks-workshop-744527726443/scripts/flink_kinesis_kdg.py
+    entryClass: "org.apache.flink.client.python.PythonDriver"
+    args: ["-py", "/opt/flink/usrlib/flink_kinesis_kdg.py", "--streamName", "flink-demo-stream", "--bucket", "emr-eks-workshop-744527726443"]
+    parallelism: 2
+    upgradeMode: stateless
+  monitoringConfiguration:
+    cloudWatchMonitoringConfiguration:
+       logGroupName: /aws/emr-eks/flink
